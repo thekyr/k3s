@@ -1,0 +1,64 @@
+---
+- name: Download k3s installer
+  get_url:
+    url: https://get.k3s.io
+    dest: /tmp/get_k3s.sh
+    mode: '0755'
+
+- name: Configure k3s master
+  block:
+    - name: Ensure k3s is not installed
+      shell: |
+        /usr/local/bin/k3s-uninstall.sh || true
+      ignore_errors: yes
+      when: "'masters' in group_names"
+
+    - name: Install k3s binary on master
+      shell: /tmp/get_k3s.sh
+      environment:
+        K3S_TOKEN: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+62663738336263396237656266366666386635343665653533333263313132303162336466656232
+3664323732326665396166336435616533633330636433380a383166643837653430343862663736
+38363336623034386331623964376232323062633534643465373363633836643962326364306133
+3536316466653562630a333563343465306634303566663166613634633735643734646163623036
+34303334396163653738653232363837306632613332343364336637653732343434363036653439
+6565653461393835356434303136336238373837336534343433
+        INSTALL_K3S_EXEC: "server \
+                           --disable=traefik \
+                           --flannel-backend=host-gw \
+                           --tls-san={{ ansible_host }} \
+                           --bind-address={{ ansible_host }} \
+                           --advertise-address={{ ansible_host }} \
+                           --node-ip={{ ansible_host }} \
+                           --cluster-init"
+      register: k3s_install_result
+      changed_when: k3s_install_result.stdout != ""
+      failed_when: k3s_install_result.rc != 0
+      when: "'masters' in group_names"
+
+    - name: Ensure k3s service is started and enabled
+      systemd:
+        name: k3s
+        state: started
+        enabled: yes
+      when: "'masters' in group_names"
+
+- name: Add worker nodes
+  block:
+    - name: Join worker node to the cluster
+      shell: /tmp/get_k3s.sh agent
+      environment:
+        K3S_URL: "https://{{ hostvars['master0'].ansible_host }}:6443"
+        K3S_TOKEN: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+62663738336263396237656266366666386635343665653533333263313132303162336466656232
+3664323732326665396166336435616533633330636433380a383166643837653430343862663736
+38363336623034386331623964376232323062633534643465373363633836643962326364306133
+3536316466653562630a333563343465306634303566663166613634633735643734646163623036
+34303334396163653738653232363837306632613332343364336637653732343434363036653439
+6565653461393835356434303136336238373837336534343433
+      register: k3s_install_result
+      changed_when: k3s_install_result.stdout != ""
+      failed_when: k3s_install_result.rc != 0
+  when: "'workers' in group_names"
