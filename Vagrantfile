@@ -6,27 +6,9 @@ require 'yaml'
 ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
 Vagrant.configure("2") do |config|
 
- # config.ssh.insert_key = false
- # config.ssh.private_key_path = "~/.ssh/id_rsa"
- # config.ssh.forward_agent = true
-
   inventory = YAML.load_file(File.join(__dir__, 'inventory.yml'))
 
   inventory['all']['children'].each do |group, properties|
-    properties['hosts'].each do |host, host_vars|
-      # ... (VM definitions)
-    end
-  end
-  
-  # Generate Ansible inventory file
-  ansible_inventory = { 'all' => { 'children' => inventory['all']['children'] } }
-  temp_inventory_path = '/tmp/vagrant_ansible_inventory'
-  File.open(temp_inventory_path, 'w') do |file|
-    file.write(ansible_inventory.to_yaml)
-  end
-
-  inventory['all']['children'].each do |group, properties|
-  #ANSIBLE_INVENTORY_FILE['all']['children'].each do |group, properties|
     properties['hosts'].each do |host, host_vars|
       config.vm.define host do |node|
         node.vm.box = "generic/ubuntu2204"
@@ -39,6 +21,13 @@ Vagrant.configure("2") do |config|
         end
       end
     end
+  end
+  
+  # Generate Ansible inventory file
+  ansible_inventory = { 'all' => { 'children' => inventory['all']['children'] } }
+  temp_inventory_path = '/tmp/vagrant_ansible_inventory'
+  File.open(temp_inventory_path, 'w') do |file|
+    file.write(ansible_inventory.to_yaml)
   end
 
   if Vagrant.has_plugin?("vagrant-timezone")
