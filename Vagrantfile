@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision :ansible do |ansible|
     ansible.verbose       = "vv"
-    ansible.playbook      = "k3s.yml"
+    ansible.playbook      = "playbook.yml"
     ansible.compatibility_mode = "2.0"
     ansible.become = "true"
     ansible.inventory_path        = temp_inventory_path 
