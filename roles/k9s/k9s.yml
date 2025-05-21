@@ -1,0 +1,26 @@
+---
+- name: Download k9s for Mac (Apple Silicon)
+  ansible.builtin.get_url:
+    url: https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_arm64.tar.gz
+    dest: /tmp/k9s_Linux_arm64.tar.gz
+    mode: '0644'
+
+- name: extract k9s tar.gz
+  ansible.builtin.unarchive:
+    src: /tmp/k9s_Linux_arm64.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: Create a .kube directory
+  ansible.builtin.file:
+    path: /home/vagrant/.kube
+    state: directory
+    mode: '0755'
+
+- name: copy k3s.yaml at user homedir
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: /home/vagrant/.kube/config
+    owner: vagrant
+    group: vagrant 
+    mode: '0600'

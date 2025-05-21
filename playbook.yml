@@ -8,3 +8,4 @@
     - common
     - k3s-role
     - docker
+    - k9s
