@@ -12,8 +12,8 @@ Vagrant.configure("2") do |config|
     properties['hosts'].each do |host, host_vars|
       config.vm.define host do |node|
         node.vm.box = "koalephant/debian12"
-        #node.vm.network "public_network", ip: host_vars['ansible_host']
-        node.vm.network "private_network", ip: host_vars['ansible_host']
+        node.vm.network "public_network", ip: host_vars['ansible_host']
+        #node.vm.network "private_network", ip: host_vars['ansible_host']
         node.vm.hostname = host
         node.vm.provider "virtualbox" do |v|
           v.memory = host_vars['memory']
