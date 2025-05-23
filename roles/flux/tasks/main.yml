@@ -1,0 +1,31 @@
+---
+- name: Download Flux install script
+  get_url:
+    url: https://fluxcd.io/install.sh
+    dest: /tmp/install_flux.sh
+    mode: '0755'
+
+- name: Run Flux install script
+  shell: /tmp/install_flux.sh
+  args:
+    creates: /usr/local/bin/flux
+
+- name: Ensure flux is in PATH
+  shell: |
+    echo 'export PATH=$PATH:/usr/local/bin' >> ~/.bashrc
+    export PATH=$PATH:/usr/local/bin
+  args:
+    executable: /bin/bash
+
+- name: Bootstrap Flux with GitHub
+  shell: |
+    KUBECONFIG=/etc/rancher/k3s/k3s.yaml flux bootstrap github \
+      --owner=<repo_owner> \
+      --repository=<gitops_repo> \
+      --branch=main \
+      --path=clusters/k3s \
+      --personal \
+      --token-auth
+  environment:
+    GITHUB_TOKEN: "{{ github_token }}"
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
