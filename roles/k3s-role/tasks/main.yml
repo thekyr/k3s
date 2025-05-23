@@ -53,3 +53,38 @@
       changed_when: k3s_install_result.stdout != ""
       failed_when: k3s_install_result.rc != 0
   when: "'workers' in group_names"
+
+- name: fix kubeconfig
+  block:
+    - name: Create kubeconfig directory if it does not exist
+      ansible.builtin.file:
+        path: /home/vagrant/.kube
+        state: directory
+        mode: '0755'
+    
+    - name: Ensure kubeconfig is copied to vagrant user
+      become: true
+      copy:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: /home/vagrant/.kube/config
+        remote_src: yes
+        owner: vagrant
+        group: vagrant
+        mode: '0600'
+    
+    - name: Ensure .kube dir exists
+      file:
+        path: /home/vagrant/.kube
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: '0700'
+    
+    - name: Export KUBECONFIG for vagrant user
+      lineinfile:
+        path: /home/vagrant/.bashrc
+        line: 'export KUBECONFIG=$HOME/.kube/config'
+        create: yes
+        state: present
+  
+  when: "'masters' in group_names"
