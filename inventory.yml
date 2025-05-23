@@ -3,19 +3,19 @@ all:
     masters:
       hosts:
         master0:
-          #ansible_host: 192.168.68.70
-          ansible_host: 192.168.56.10
+          ansible_host: 192.168.68.50
+          #ansible_host: 192.168.56.10
           memory: 4096
           cpu: 2
     workers:
       hosts:
         worker0:
-          #ansible_host: 192.168.68.71
-          ansible_host: 192.168.56.11
+          ansible_host: 192.168.68.51
+          #ansible_host: 192.168.56.11
           memory: 2048
           cpu: 1
         worker1:
-          #ansible_host: 192.168.68.72
-          ansible_host: 192.168.56.12
+          ansible_host: 192.168.68.52
+          #ansible_host: 192.168.56.12
           memory: 2048
           cpu: 1
