@@ -21,7 +21,7 @@
   shell: |
     KUBECONFIG=/etc/rancher/k3s/k3s.yaml flux bootstrap github \
       --owner=<repo_owner> \
-      --repository=<gitops_repo> \
+      --repository="{{ gitops_repo }}" \
       --branch=main \
       --path=clusters/k3s \
       --personal \
