@@ -4,24 +4,6 @@
   become_method: sudo
   gather_facts: yes
 
-#  tasks:
-#
-#    - name: Wait until all nodes are Ready
-#      shell: |
-#        set -o pipefail
-#        kubectl get nodes --no-headers | grep -v NotReady | wc -l
-#      register: ready_nodes
-#      retries: 20
-#      delay: 10
-#      until: ready_nodes.stdout | int == groups['all'] | length
-#      changed_when: false
-#      environment:
-#        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-#
-#    - name: Debug all nodes are ready
-#      debug:
-#        msg: "All {{ groups['all'] | length }} nodes are in Ready state"
-  
   vars_prompt:
   - name: "github_token"
     prompt: "Please paste your GitHub Personal Access Token (PAT)"
